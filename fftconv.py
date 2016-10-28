@@ -14,6 +14,8 @@ from theano.misc.pycuda_init import pycuda_available
 if pycuda_available:
     import pycuda.gpuarray
 
+#added by Tommy
+
 try:
     import scikits.cuda
     from scikits.cuda import fft, cublas

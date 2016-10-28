@@ -1,0 +1,15 @@
+%YAML 1.2
+---
+batch_size: 50
+clipnorm: 0
+hidden_units: 512
+learning_rate: 0.0001
+learning_rate_natGrad : 0.000001
+model_impl: complex_RNN
+unitary_impl : full_natGradRMS
+nb_epochs: 200
+patience : 5
+histfile : exp/history_mnist_fulluRNN512_lr0-0001_lrng0-000001_patience5_natGradRMS
+savefile : exp/model_mnist_fulluRNN512_lr0-0001_lrng0-000001_patience5_natGradRMS.hdf5
+flag_permute : False
+

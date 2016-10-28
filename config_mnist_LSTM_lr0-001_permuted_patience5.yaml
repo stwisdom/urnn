@@ -1,0 +1,13 @@
+%YAML 1.2
+---
+batch_size: 50
+clipnorm: 1.0
+hidden_units: 128
+learning_rate: 0.001
+model_impl: LSTM
+nb_epochs: 200
+patience : 5
+histfile : exp/history_mnist_LSTM128_lr0-001_permuted_patience5
+savefile : exp/model_mnist_LSTM128_lr0-001_permuted_patience5.hdf5
+flag_permute : True
+

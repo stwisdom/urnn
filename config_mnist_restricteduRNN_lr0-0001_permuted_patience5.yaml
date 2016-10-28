@@ -1,0 +1,13 @@
+%YAML 1.2
+---
+batch_size: 50
+clipnorm: 0
+hidden_units: 512
+learning_rate: 0.0001
+model_impl: complex_RNN
+nb_epochs: 200
+patience : 5
+histfile : exp/history_mnist_restricteduRNN512_permuted_patience5
+savefile : exp/model_mnist_restricteduRNN512_permuted_patience5.hdf5
+flag_permute : True
+
