@@ -1,0 +1,6 @@
+%YAML 1.2
+---
+hidden_units: 100
+model_impl: uRNN_keras
+unitary_impl: full_natGrad
+unitary_init: ASB2016

@@ -149,7 +149,8 @@ def unitary_svd_init(shape, name=None):
     X = np.dot(U,V)
     ReX = np.real(X)
     ImX = np.imag(X)
-    Xaug = np.concatenate([ReX,ImX],axis=0)
+    Xaug = np.concatenate( (np.concatenate([ReX,ImX],axis=1),
+                            np.concatenate([-ImX,ReX],axis=1)),axis=0)
     return K.variable(Xaug,name=name)
 
 
@@ -252,6 +253,9 @@ class uRNN(Recurrent):
             #self.b_regularizer = regularizers.get(b_regularizer)
             print "Regularizers and dropout not yet supported for unitary RNN"
             raise NotImplementedError
+        self.W_regularizer=None
+        self.U_regularizer=None
+        self.b_regularizer=None
 
         self.dropout_W, self.dropout_U = dropout_W, dropout_U 
         if self.dropout_W or self.dropout_U:
@@ -283,14 +287,27 @@ class uRNN(Recurrent):
             
             if (self.inner_init=='svd'):
                 # use SVD to initialize U
-                self.U = unitary_svd_init((self.N, self.N),name='{}_U'.format(self.name))
+                Uaug = unitary_svd_init((self.N, self.N))
+                Uaug=Uaug.eval()
             elif (self.inner_init=='ASB2016'):
                 # use parameterization of [ASB2016] to initialize U
                 Uaug,_,_,_ = unitary_ASB2016_init((self.N,self.N))
                 Uaug=Uaug.eval()
-                self.U=K.variable(np.concatenate((Uaug[:self.N,:self.N],Uaug[:self.N,self.N:]),axis=0),name='{}_U'.format(self.name))
-                
-            self.Uaug=augRight(self.U,module=K)
+                #self.U=K.variable(np.concatenate((Uaug[:self.N,:self.N],Uaug[:self.N,self.N:]),axis=0),name='{}_U'.format(self.name))
+            
+            #self.Uaug=augRight(self.U,module=K)
+            self.U=K.variable(Uaug,name='{}_U'.format(self.name))
+            self.Uaug=self.U
+
+            if (self.unitary_impl=='full'):
+                # just use lrng for learning rate on this parameter
+                self.U.name+='full_natGrad'
+            elif (self.unitary_impl=='full_natGrad'):
+                # use fixed lrng with natural gradient update
+                self.U.name+='_natGrad_unitaryAug'
+            elif (self.unitary_impl=='full_natGradRMS'):
+                # use fixed lrng with natural gradient update and RMSprop-style gradient adjustment
+                self.U.name+='_natGradRMS_unitaryAug'
 
         elif (self.unitary_impl=='ASB2016'):
             # we're using the parameterization of [Arjovsky, Shah, Bengio 2016]
@@ -392,8 +409,8 @@ class uRNN(Recurrent):
     def get_config(self):
         config = {'output_dim': self.output_dim,
                   'init': self.init.__name__,
-                  'inner_init': self.inner_init.__name__,
-                  'activation': self.activation.__name__,
+                  'inner_init': self.inner_init,
+                  'activation': self.activation,
                   'W_regularizer': self.W_regularizer.get_config() if self.W_regularizer else None,
                   'U_regularizer': self.U_regularizer.get_config() if self.U_regularizer else None,
                   'b_regularizer': self.b_regularizer.get_config() if self.b_regularizer else None,
@@ -424,12 +441,13 @@ class complex_RNN_wrapper(Layer):
             'full_natGradRMS': uses full unitary matrix with natural gradient step
                                and RMSprop-stype regularization of gradients
     '''
-    def __init__(self, output_dim, hidden_dim=None, unitary_impl='adhoc', **kwargs):
+    def __init__(self, output_dim, hidden_dim=None, unitary_impl='adhoc', return_sequences=False, **kwargs):
         self.output_dim = output_dim
         if hidden_dim is None:
             hidden_dim = output_dim
         self.hidden_dim=hidden_dim
         self.unitary_impl=unitary_impl
+        self.return_sequences=return_sequences
         super(complex_RNN_wrapper, self).__init__(**kwargs)
 
     def build(self, input_shape):
@@ -438,7 +456,7 @@ class complex_RNN_wrapper(Layer):
     def call(self, x, mask=None):
         input_dim = self.input_dim
         input_type='real'
-        out_every_t=False
+        out_every_t=self.return_sequences
         loss_function='MSE'
         output_type='real'
         flag_feed_forward=False
@@ -486,7 +504,10 @@ class complex_RNN_wrapper(Layer):
         return lin_output
 
     def get_output_shape_for(self, input_shape):
-        return (input_shape[0], self.output_dim)
+        if self.return_sequences:
+            return (input_shape[0],input_shape[1], self.output_dim) 
+        else:
+            return (input_shape[0], self.output_dim)
 
 class DenseUnitaryAug(Layer):
     '''A dense unitary ReIm augmented layer
