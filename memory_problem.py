@@ -64,7 +64,7 @@ def main(n_iter, n_batch, n_hidden, time_steps, learning_rate, savefile, model, 
 
     elif (model == 'complex_RNN'):
         if (w_impl == 'full'):
-            inputs, parameters, costs = complex_RNN(n_input, n_hidden, n_output, input_type=input_type,out_every_t=out_every_t, loss_function=loss_function,output_type='real', fidx=None, flag_return_lin_output=False,name_suffix='',x_spec=None,flag_feed_forward=False,flag_use_mask=False,hidden_bias_mean=0.0,lam=0.0,Wimpl='full',n_Givens=0,prng_Givens=np.random.RandomState(52016))
+            inputs, parameters, costs = complex_RNN(n_input, n_hidden, n_output, input_type=input_type,out_every_t=out_every_t, loss_function=loss_function,output_type='real', fidx=None, flag_return_lin_output=False,name_suffix='',x_spec=None,flag_feed_forward=False,flag_use_mask=False,hidden_bias_mean=0.0,lam=0.0,Wimpl='full')
 
         else:
             inputs, parameters, costs = complex_RNN(n_input, n_hidden, n_output, input_type=input_type,
