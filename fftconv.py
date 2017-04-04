@@ -19,7 +19,7 @@ if pycuda_available:
 try:
     import scikits.cuda
     from scikits.cuda import fft, cublas
-    scikits.cuda.misc.init()
+    #scikits.cuda.misc.init()
     scikits_cuda_available = True
 except ImportError:
     scikits_cuda_available = False
