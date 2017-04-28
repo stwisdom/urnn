@@ -11,7 +11,7 @@ If you find this code useful, please cite the following references:
 
 ## Instructions for TIMIT prediction experiment
 
-1) Downsample the TIMIT dataset to 8ksamples/sec using Matlab by running ```downsample.m``` from the ```matlab``` directory. Make sure you modify the paths in ```downsample.m``` for your system.
+1) Downsample the TIMIT dataset to 8ksamples/sec using Matlab by running ```downsample_audio.m``` from the ```matlab``` directory. Make sure you modify the paths in ```downsample_audio.m``` for your system.
 
 2) Download Matlab evaluation code using ```download_and_unzip_matlab_code.py```, which should download and unzip all the required toolboxes to the ```matlab``` folder.
 
